@@ -41,13 +41,17 @@ view(merged)
 
 ```{r}
 library(tidyverse)
+library(dplyr)
 library(readxl)
 library(readr)
 library(stringr)
 library(fuzzyjoin)
+library(ggplot2)
 
 en <- read_csv("Arch_english_inscriptions.txt")
 en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
+
+# Starts from the beginning of each line
 en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
 
 
@@ -58,19 +62,80 @@ crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
 merged <- left_join(master_data, crosses_data)
 
 
-
+# Attempting to merg translations
 #translations <- en %>%
 #  select(name, english_translations)   
-merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
-#merged <- merge(merged, en)
+#merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
+
+# Renames columns
+merged <-
+merged %>%
+ rename(
+    Signature = Signum,
+    Found_Location = Plats,
+    Parish = Socken,
+    District = Härad,
+    Municipality = Kommun,
+    Coordinates = Koordinater,
+    Style_Grouping = Stilgruppering,
+    Carver = Ristare,
+    Material_Type = Materialtyp,
+    Picture_Link = Bildlänk,
+    Cross_Num = '#'
+  )
+
+# Filters out entries with no carver data
 
 
+merged <- filter(merged, 
+!(merged$Carver == ('')))
 
+# Filters out entries with no coordinate data
+merged <- filter(merged, 
+!(merged$Coordinates == ('')))
 
+#Regex for matching (n): .*\(n\)
+
+# Finds all entries in 'Carver' with '(A)'
+merged$Attributed <- str_match(merged$Carver, ".*\\(A\\)")
+# Finds all entries in 'Carver' with '(S)'
+merged$Signed <- str_match(merged$Carver, ".*\\(S\\)")
+
+# Summarises totals for cross types
+merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + merged$A6 + merged$A7 + merged$A8 + merged$A9
+merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
+merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10
+merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
+merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
+merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
+#paste(G, c(1:6)) %>%
+#  merged <-
+
+# read the right of the coordinates: (\d+.)$
+merged$lat <- str_match(merged$Coordinates, regex("(\\d+.)$"))
+
+# read the left of the coordinates: ^[^.]*
+merged$long <- str_match(merged$Coordinates, regex("^[^.]*"))
 view(merged)
-# Get rid of those without authors
-# Filter by municpility instead of coordinates
+
+#merged$lat <- as.numeric(merged$lat)
+#merged$long <- as.numeric(merged$long)
+
+
+
+#strtoi(merged$lat)
+#strtoi(merged$long)
+
+#ggplot(merged, aes(x = lat, y = long)) + geom_point()
+
 ```
+
+```{r}
+
+
+```
+
+
 
 ```{r}
 library(tidyverse)
@@ -112,7 +177,8 @@ View(en)
 - Runestones not by the person but by the carver -- Indivdiual commisioning compared to the person who died
 - Runes %>% old norse %>% english (spirit/soul difference in English) 
   - English vs swedish vs icelandic
-
+- Get rid of those without authors
+- Filter by municpility instead of coordinates
 
 ## Including Plots
 
