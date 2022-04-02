@@ -9,36 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r}
-library(tidyverse)
-library(readxl)
-
-rundata_data <- read_csv("rundata-net_results.csv")
-
-master_data <- read_excel("Arch_master_spreadsheet-2.xls")
-
-crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
-
-merged <- left_join(master_data, crosses_data)
-
-translations <- rundata_data %>%
-  select(Signature, `Transliterated runic text`, `Translation to English`)
-merged <-left_join(merged, translations, by = c("Signum" = "Signature"))
-
-
-
-
-view(merged)
-# Get rid of those without authors
-# Filter by municpility instead of coordinates
-```
-
+# Main Processing
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -61,7 +32,7 @@ crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
 
 merged <- left_join(master_data, crosses_data)
 
-
+#TODO
 # Attempting to merg translations
 #translations <- en %>%
 #  select(name, english_translations)   
@@ -108,8 +79,6 @@ merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + me
 merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
 merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
 merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
-#paste(G, c(1:6)) %>%
-#  merged <-
 
 # read the right of the coordinates: (\d+.)$
 merged$lat <- str_match(merged$Coordinates, regex("(\\d+.)$"))
@@ -117,6 +86,8 @@ merged$lat <- str_match(merged$Coordinates, regex("(\\d+.)$"))
 # read the left of the coordinates: ^[^.]*
 merged$long <- str_match(merged$Coordinates, regex("^[^.]*"))
 view(merged)
+
+#TODO cut off coordinates not in lat/long form 
 
 #merged$lat <- as.numeric(merged$lat)
 #merged$long <- as.numeric(merged$long)
@@ -130,41 +101,8 @@ view(merged)
 
 ```
 
-```{r}
 
-
-```
-
-
-
-```{r}
-library(tidyverse)
-library(readr)
-library(stringr)
-en <- read_csv("Arch_english_inscriptions.txt")
-#df %>% 
-#    separate( col2, into=c("Col2", "Col3"), sep= " ") %>% 
-#    mutate(Col2 = gsub("½", ".05", Col2) %>% as.numeric)
-
-
-
-en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)")) #this one is only works in r and not normal regex
-#en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})", multiline = TRUE)) #This one works the same as above but as it's inverse but both fail when the signum changes length (aka number of spaces)
-
-#Hopefully this one reads until it encounters [0-9]|†|$|§ then returns the substring
-
-
-View(en)
-
-# grepl(en , "God)
-#View(en)
-```
-
-```{r}
-# Create a new column 
-```
-
-## Notes from video
+## Notes from video masterclass 2
 - Laser analysis -- see hesitant vs confident cuts between masters vs apprentices
   - Cuts (strong to fatigue)
   - ~3 days to carve
@@ -180,12 +118,3 @@ View(en)
 - Get rid of those without authors
 - Filter by municpility instead of coordinates
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
