@@ -1,6 +1,6 @@
 ---
 title: "Merge df"
-author: "Damon Lam"
+author: "DL"
 date: "24/03/2022"
 output: html_document
 ---
@@ -81,10 +81,10 @@ merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
 merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
 
 # read the right of the coordinates: (\d+.)$
-merged$lat <- str_match(merged$Coordinates, regex("(\\d+.)$"))
+merged$lat <- str_match(merged$Coordinates, regex("\\d+$"))
 
 # read the left of the coordinates: ^[^.]*
-merged$long <- str_match(merged$Coordinates, regex("^[^.]*"))
+merged$long <- str_match(merged$Coordinates, regex("^\\d+"))
 view(merged)
 
 #TODO cut off coordinates not in lat/long form 
