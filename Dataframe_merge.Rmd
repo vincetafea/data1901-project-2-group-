@@ -1,0 +1,125 @@
+---
+title: "Merge df"
+author: "Damon Lam"
+date: "24/03/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+library(tidyverse)
+library(readxl)
+
+rundata_data <- read_csv("rundata-net_results.csv")
+
+master_data <- read_excel("Arch_master_spreadsheet-2.xls")
+
+crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
+
+merged <- left_join(master_data, crosses_data)
+
+translations <- rundata_data %>%
+  select(Signature, `Transliterated runic text`, `Translation to English`)
+merged <-left_join(merged, translations, by = c("Signum" = "Signature"))
+
+
+
+
+view(merged)
+# Get rid of those without authors
+# Filter by municpility instead of coordinates
+```
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(readr)
+library(stringr)
+library(fuzzyjoin)
+
+en <- read_csv("Arch_english_inscriptions.txt")
+en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
+en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
+
+
+master_data <- read_excel("Arch_master_spreadsheet-2.xls")
+
+crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
+
+merged <- left_join(master_data, crosses_data)
+
+
+
+#translations <- en %>%
+#  select(name, english_translations)   
+merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
+#merged <- merge(merged, en)
+
+
+
+
+view(merged)
+# Get rid of those without authors
+# Filter by municpility instead of coordinates
+```
+
+```{r}
+library(tidyverse)
+library(readr)
+library(stringr)
+en <- read_csv("Arch_english_inscriptions.txt")
+#df %>% 
+#    separate( col2, into=c("Col2", "Col3"), sep= " ") %>% 
+#    mutate(Col2 = gsub("½", ".05", Col2) %>% as.numeric)
+
+
+
+en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)")) #this one is only works in r and not normal regex
+#en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})", multiline = TRUE)) #This one works the same as above but as it's inverse but both fail when the signum changes length (aka number of spaces)
+
+#Hopefully this one reads until it encounters [0-9]|†|$|§ then returns the substring
+
+
+View(en)
+
+# grepl(en , "God)
+#View(en)
+```
+
+```{r}
+# Create a new column 
+```
+
+## Notes from video
+- Laser analysis -- see hesitant vs confident cuts between masters vs apprentices
+  - Cuts (strong to fatigue)
+  - ~3 days to carve
+- Christian runestones (Southern Sweden Christianised before Northern) -- closer to Denmark 
+  - Geographical
+  - Swedish kings in the North against Christianity
+- Data from 3 regions: Sweden, Denmark, Norway
+- Tools = chisel + mallet
+- "He died in white clothes" (Started but didnt finish Baptism)
+- Runestones not by the person but by the carver -- Indivdiual commisioning compared to the person who died
+- Runes %>% old norse %>% english (spirit/soul difference in English) 
+  - English vs swedish vs icelandic
+
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
