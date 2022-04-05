@@ -87,6 +87,18 @@ merged$lat <- str_match(merged$Coordinates, regex("\\d+$"))
 
 # read the left of the coordinates: ^[^.]*
 merged$long <- str_match(merged$Coordinates, regex("^\\d+"))
+
+# Filters out invalid coordinates
+merged <- filter(merged, 
+!(merged$lat == (' ')))
+
+
+# Filters out the signed columns by runestones with multiple signatures
+merged <- filter(merged, 
+!(merged$Signed == (';')))
+
+
+
 view(merged)
 
 #TODO cut off coordinates not in lat/long form 
@@ -99,7 +111,7 @@ view(merged)
 #strtoi(merged$lat)
 #strtoi(merged$long)
 
-#ggplot(merged, aes(x = lat, y = long)) + geom_point()
+ggplot(merged, aes(x = lat, y = long)) + geom_point()
 
 ```
 
