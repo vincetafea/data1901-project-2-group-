@@ -20,11 +20,11 @@ library(fuzzyjoin)
 library(ggplot2)
 
 # Negates the first 2 spaces and then reads everything after
-en <- read_csv("Arch_english_inscriptions.txt")
-en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
+###en <- read_csv("Arch_english_inscriptions.txt")
+###en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
 
 # Starts from the beginning of each line and reads all chars that aren't a space, then reads the space. Repeats 3 times, essentially matching the first 3 words
-en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
+###en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
 
 master_data <- read_excel("Arch_master_spreadsheet-2.xls")
 
@@ -95,23 +95,47 @@ merged$long <- str_match(merged$Coordinates, regex("^\\d+"))
 merged <- filter(merged, 
 !(merged$lat == (' ')))
 
-
-# Filters out the signed columns by runestones with multiple signatures
-#merged <- filter(merged, 
-#!(merged$Signed == regex("[^;]+")))
-
-
+#Filtering out the signed cols with multiple etn
 #Regex for matching up to and including the first (S) only
-merged$Signed <- str_match(merged$Signed, regex("^(.*?)\\(S\\)"))
 
-merged$Signed <- order(merged$Signed)
+
+merged$Signed <- str_match(merged$Signed, regex("^(.*?)\\(S\\)"))
+#merged$Signed_freq <-
+
+merged <- merged[complete.cases(merged$Signed), ]
+
+merged %>%
+  group_by(Signed) %>%
+  mutate(Freq = n())
+
+#merged$Signed %>%
+#merged$F = arrange(desc(Freq))
+
+## Works below but only alphabetical
+#merged <- sort(merged$Signed, decreasing=T)
+
+
+
+
+#merged <- filter(merged, (grepl("^(.*?)\\(S\\)", Signed)))
+
+
+##merged <- merged[order(merged$Signed, decreasing = TRUE),]
 
 #TODO bugged -- trying to filter out empty entries
 #merged <- filter(merged, !(merged$Signed == ('')))
 
 
+merged <- transform(merged,s_freq=ave(seq(nrow(merged)),Signed,FUN=length))
 
-view(merged)
+merged <- arrange(merged, desc(s_freq))
+
+disc_signed_df <- distinct(merged, Signed, s_freq)
+unique_sig = disc_signed_df$Signed
+unique_sig = unique_sig[1:5]
+unique_freq = disc_signed_df$s_freq
+unique_freq = unique_freq[1:5]
+
 
 #TODO cut off coordinates not in lat/long form 
 
