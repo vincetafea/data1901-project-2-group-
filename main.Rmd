@@ -19,12 +19,12 @@ library(stringr)
 library(fuzzyjoin)
 library(ggplot2)
 
+# Negates the first 2 spaces and then reads everything after
 en <- read_csv("Arch_english_inscriptions.txt")
 en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
 
-# Starts from the beginning of each line
+# Starts from the beginning of each line and reads all chars that aren't a space, then reads the space. Repeats 3 times, essentially matching the first 3 words
 en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
-
 
 master_data <- read_excel("Arch_master_spreadsheet-2.xls")
 
@@ -59,7 +59,6 @@ merged %>%
 
 # Filters out entries with no carver data
 
-
 merged <- filter(merged, 
 !(merged$Carver == ('')))
 
@@ -74,6 +73,8 @@ merged$Attributed <- str_match(merged$Carver, ".*\\(A\\)")
 # Finds all entries in 'Carver' with '(S)'
 merged$Signed <- str_match(merged$Carver, ".*\\(S\\)")
 
+
+
 # Summarises totals for cross types
 merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + merged$A6 + merged$A7 + merged$A8 + merged$A9
 merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
@@ -81,6 +82,8 @@ merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + me
 merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
 merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
 merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
+
+
 
 # read the right of the coordinates: (\d+.)$
 merged$lat <- str_match(merged$Coordinates, regex("\\d+$"))
@@ -94,8 +97,17 @@ merged <- filter(merged,
 
 
 # Filters out the signed columns by runestones with multiple signatures
-merged <- filter(merged, 
-!(merged$Signed == (';')))
+#merged <- filter(merged, 
+#!(merged$Signed == regex("[^;]+")))
+
+
+#Regex for matching up to and including the first (S) only
+merged$Signed <- str_match(merged$Signed, regex("^(.*?)\\(S\\)"))
+
+merged$Signed <- order(merged$Signed)
+
+#TODO bugged -- trying to filter out empty entries
+#merged <- filter(merged, !(merged$Signed == ('')))
 
 
 
@@ -111,7 +123,7 @@ view(merged)
 #strtoi(merged$lat)
 #strtoi(merged$long)
 
-ggplot(merged, aes(x = lat, y = long)) + geom_point()
+ggplot(merged, aes(x = long, y = lat)) + geom_point()
 
 ```
 
