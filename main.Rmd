@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Main Processing
+
 ```{r}
 library(tidyverse)
 library(dplyr)
@@ -25,17 +25,21 @@ library(scales)
 #TODO fix EN translations
 
 # Negates the first 2 spaces and then reads everything after
-###en <- read_csv("Arch_english_inscriptions.txt")
-###en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
-
+en <- read_csv("Arch_english_inscriptions.txt")
+en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
 # Starts from the beginning of each line and reads all chars that aren't a space, then reads the space. Repeats 3 times, essentially matching the first 3 words
-###en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
+en$Signum <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+.){2}.)"))
+en <- en[-c(1), ]
+col_order <- c("Signum", "!/R Engelsk översättning", "english_translations")
+en <- en[, col_order]
+
 
 master_data <- read_excel("Arch_master_spreadsheet-2.xls")
 
 crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
 
 merged <- left_join(master_data, crosses_data)
+merged <- fuzzy_inner_join(merged, en, match_fun = str_detect, by = c("Signum" = "Signum"))
 
 #TODO
 # Attempting to merg translations
@@ -43,6 +47,13 @@ merged <- left_join(master_data, crosses_data)
 #  select(name, english_translations)   
 #merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
 ###########################
+view(merged)
+```
+
+
+# Main Processing
+```{r}
+
 
 
 
@@ -149,29 +160,28 @@ unique_freq <- unique_freq[1:5]
 
 top_5_df <- merged[merged$Signed %in% unique_sig, ]
 
+
+```
+
+
+## Plots
+### Lat and long of top 5 carvers
+```{r}
 #TODO fix scales
 scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  geom_point()# +
-  #scale_x_discrete(name = "Longitude",) +
-  #scale_y_discrete(name = "Latitude", )
+  geom_point() +
+  scale_x_discrete(name = "Longitude", breaks = NULL) + 
+  scale_y_discrete(name = "Latitude", breaks = 80)
   #scale_y_continuous(name = "Longitude", breaks = seq(0, 1000, by=100), limits=c(0,1000))
 scatter1
 ```
 
 
-## Notes from video masterclass 2
-- Laser analysis -- see hesitant vs confident cuts between masters vs apprentices
-  - Cuts (strong to fatigue)
-  - ~3 days to carve
-- Christian runestones (Southern Sweden Christianised before Northern) -- closer to Denmark 
-  - Geographical
-  - Swedish kings in the North against Christianity
-- Data from 3 regions: Sweden, Denmark, Norway
-- Tools = chisel + mallet
-- "He died in white clothes" (Started but didnt finish Baptism)
-- Runestones not by the person but by the carver -- Indivdiual commisioning compared to the person who died
-- Runes %>% old norse %>% english (spirit/soul difference in English) 
-  - English vs swedish vs icelandic
-- Get rid of those without authors
-- Filter by municpility instead of coordinates
+
+```{r}
+scatter2 <- ggplot(top_5_df, aes(x = Signed, fill = Cross_Num)) + geom_bar()
+scatter2
+
+```
+
 
