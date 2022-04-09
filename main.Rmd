@@ -118,6 +118,9 @@ merged$long <- str_match(merged$Coordinates, regex("^\\d+"))
 # Filters out all NA and blank coord
 merged <- filter(merged, 
 !(merged$lat == ('')))
+
+merged$lat <- as.numeric(merged$lat)
+merged$long <- as.numeric(merged$long)
 ###########################
 
 
@@ -144,19 +147,54 @@ unique_freq <- unique_freq[1:5]
 ###########################
 
 
+
 #merged[is.element(merged$Signed, unique_sig)]
 #view(top5_df)
 
 top_5_df <- merged[merged$Signed %in% unique_sig, ]
+```
 
+
+
+
+## Lat/long 
+```{r}
 #TODO fix scales
+#TODO consider lat or long on which axis
 scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  geom_point()# +
-  #scale_x_discrete(name = "Longitude",) +
-  #scale_y_discrete(name = "Latitude", )
-  #scale_y_continuous(name = "Longitude", breaks = seq(0, 1000, by=100), limits=c(0,1000))
+  stat_density_2d() + 
+  geom_point() +
+  scale_x_continuous(name = "Longitude") +
+  scale_y_continuous(name = "Latitude")
 scatter1
 ```
+
+
+## Time period + frequency 
+Style grouping legened
+RAK	990-1010 AD   
+FP	1010-1050 AD
+Pr1	1010-1040 AD
+Pr2	1020-1050 AD
+Pr3	1050 – 1070 AD
+Pr4	1060-1100 AD
+Pr5	1100-1130 AD
+```{r}
+bar1 <- ggplot(top_5_df, aes(x = Signed, y = s_freq, fill = Style_Grouping)) + 
+                     geom_bar()
+
+#TODO add legend for time period of styles
+
+bar1
+```
+
+## Crosses
+```{r}
+
+
+
+```
+
 
 
 ## Notes from video masterclass 2
