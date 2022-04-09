@@ -213,8 +213,13 @@ bar1
 
 ## Crosses
 ```{r}
+########################
 
+## ACTUAL IDEA
+# y-axis == subspace of total crosses completely ignore runestones of that specific carver
+# Filled by each style in a stacked bar chart sort of things
 
+########################
 
 # Main idea: proportion of each cross style (total c(A:G)) that each carver used
 # x-axis = carver, y-axis = proportion of cross styles as a % of runestones carved
