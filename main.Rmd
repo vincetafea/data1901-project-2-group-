@@ -70,6 +70,8 @@ merged %>%
 merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + merged$A6 + merged$A7 + merged$A8 + merged$A9
 merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
 merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10
+
+
 merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
 merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
 merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
@@ -207,26 +209,26 @@ bar1
 
 ## Crosses
 ```{r}
+# Main idea: proportion of each cross style (total c(A:G)) that each carver used
+# x-axis = carver, y-axis = proportion of cross styles as a % of runestones carved
 
+## Ideas
+# Seperate by carver -- find the styles of each carver
+  # Create 5 charts -- 1 for each carver
+  # Determine the style that each carver used -- draw interesting conclusion (qualitative)
 
+## Steps
+# Create new temp df for filtered by each carver
+# Bar chart is coloured by crosses
+
+opir_df <- filter(merged, Signed == "Öpir 1 (S)")
+opir_df$A_TF <- opir_df$Total_A>0
+view(opir_df)
+
+#view(opir_df)
+#opir_plot <- ggplot(opir_df, aes(x = Signed)) +
+#  geom_bar()
+#opir_plot
 
 ```
-
-
-
-## Notes from video masterclass 2
-- Laser analysis -- see hesitant vs confident cuts between masters vs apprentices
-  - Cuts (strong to fatigue)
-  - ~3 days to carve
-- Christian runestones (Southern Sweden Christianised before Northern) -- closer to Denmark 
-  - Geographical
-  - Swedish kings in the North against Christianity
-- Data from 3 regions: Sweden, Denmark, Norway
-- Tools = chisel + mallet
-- "He died in white clothes" (Started but didnt finish Baptism)
-- Runestones not by the person but by the carver -- Indivdiual commisioning compared to the person who died
-- Runes %>% old norse %>% english (spirit/soul difference in English) 
-  - English vs swedish vs icelandic
-- Get rid of those without authors
-- Filter by municpility instead of coordinates
 
