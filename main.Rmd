@@ -158,16 +158,33 @@ top_5_df <- merged[merged$Signed %in% unique_sig, ]
 
 
 ## Lat/long 
+
 ```{r}
 #TODO fix scales
 #TODO consider lat or long on which axis
 scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  stat_density_2d() + 
   geom_point() +
   scale_x_continuous(name = "Longitude") +
   scale_y_continuous(name = "Latitude")
 scatter1
 ```
+
+```{r}
+#TODO fix scales
+#TODO consider lat or long on which axis
+scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
+  stat_density_2d()
+scatter1
+```
+
+```{r}
+#TODO fix scales
+#TODO consider lat or long on which axis
+scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
+  geom_bin_2d()
+scatter1
+```
+
 
 
 ## Time period + frequency 
@@ -180,7 +197,7 @@ Pr3	1050 – 1070 AD
 Pr4	1060-1100 AD
 Pr5	1100-1130 AD
 ```{r}
-bar1 <- ggplot(top_5_df, aes(x = Signed, y = s_freq, fill = Style_Grouping)) + 
+bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Style_Grouping)) + 
                      geom_bar()
 
 #TODO add legend for time period of styles
