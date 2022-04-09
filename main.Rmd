@@ -71,6 +71,8 @@ merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + me
 merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
 merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10
 
+### TODO GOTTA ADD D
+
 
 merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
 merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
@@ -207,8 +209,13 @@ bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Style_Grouping
 bar1
 ```
 
+
+
 ## Crosses
 ```{r}
+
+
+
 # Main idea: proportion of each cross style (total c(A:G)) that each carver used
 # x-axis = carver, y-axis = proportion of cross styles as a % of runestones carved
 
@@ -221,9 +228,17 @@ bar1
 # Create new temp df for filtered by each carver
 # Bar chart is coloured by crosses
 
+###########################
+
 opir_df <- filter(merged, Signed == "Öpir 1 (S)")
-opir_df$A_TF <- opir_df$Total_A>0
+
+# Creates a column 
+opir_df$A_TF <- opir_df$Total_A > 0
+A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
+
 view(opir_df)
+
+
 
 #view(opir_df)
 #opir_plot <- ggplot(opir_df, aes(x = Signed)) +
