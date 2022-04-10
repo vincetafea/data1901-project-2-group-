@@ -153,9 +153,10 @@ unique_freq <- unique_freq[1:5]
 
 
 #merged[is.element(merged$Signed, unique_sig)]
-#view(top5_df)
+
 
 top_5_df <- merged[merged$Signed %in% unique_sig, ]
+view(top_5_df)
 ```
 
 
@@ -205,7 +206,7 @@ bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Style_Grouping
                      geom_bar()
 
 #TODO add legend for time period of styles
-
+#TODO add a label for the total quanitity of each carver
 
 bar1
 ```
@@ -238,18 +239,33 @@ bar1
 
 opir_df <- filter(merged, Signed == "Öpir 1 (S)")
 
-# Creates a column 
+# Creates a column containing the total entries of A
 opir_df$A_TF <- opir_df$Total_A > 0
+
+#
 A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
 
 view(opir_df)
 
 
+###########################
 
 #view(opir_df)
 #opir_plot <- ggplot(opir_df, aes(x = Signed)) +
 #  geom_bar()
 #opir_plot
+
+```
+
+
+# Misc
+```{r}
+
+# How to assign variables with a for loop
+for (i in c("A", "B", "C", "D", "E"))
+{
+  assign(paste("var", i, sep=""), i) #replace the last i with what you want each var to be
+}
 
 ```
 
