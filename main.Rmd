@@ -69,12 +69,12 @@ merged %>%
 # Summarises totals for cross types
 merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + merged$A6 + merged$A7 + merged$A8 + merged$A9
 merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
-merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10
+merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10 + merged$C11
 
 ### TODO GOTTA ADD D
+merged$Total_D <- merged$D1 + merged$D2 + merged$D3 + merged$D4 + merged$D5 + merged$D6
 
-
-merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10
+merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10 + merged$E11
 merged$Total_F <- merged$F1 + merged$F2 + merged$F3 + merged$F4
 merged$Total_G <- merged$G1 + merged$G2 + merged$G3 + merged$G4 + merged$G5 + merged$G6
 ###########################
@@ -102,6 +102,8 @@ merged$Signed <- str_match(merged$Carver, ".*\\(S\\)")
 
 # Removes all NA data entries by the column Signed
 merged <- merged[complete.cases(merged$Signed), ]
+
+merged$Clean_styles <- str_match(merged$Style_Grouping, "^[^?]+")
 ###########################
 
 
@@ -202,7 +204,7 @@ Pr3	1050 – 1070 AD
 Pr4	1060-1100 AD
 Pr5	1100-1130 AD
 ```{r}
-bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Style_Grouping)) + 
+bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Clean_styles)) + 
                      geom_bar()
 
 #TODO add legend for time period of styles
@@ -237,18 +239,31 @@ bar1
 
 ###########################
 
+styles_vec = c("A", "B", "C", "D", "E")
+
 opir_df <- filter(merged, Signed == "Öpir 1 (S)")
 
-# Creates a column containing the total entries of A
-opir_df$A_TF <- opir_df$Total_A > 0
 
-#
-A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
+total_crosses = 0
 
-view(opir_df)
+total_crosses = sum(top_5_df$Total_A, 
+                    top_5_df$Total_B, 
+                    top_5_df$Total_C, 
+                    top_5_df$Total_D, 
+                    top_5_df$Total_E,
+                    top_5_df$Total_F,
+                    na.rm = T)
+
+
+ggplot(opir_df, aes(x = ))
+#view(opir_df)
+
 
 
 ###########################
+# Creates a column containing the total entries of A
+opir_df$A_TF <- opir_df$Total_A > 0
+#A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
 
 #view(opir_df)
 #opir_plot <- ggplot(opir_df, aes(x = Signed)) +
@@ -260,6 +275,8 @@ view(opir_df)
 
 # Misc
 ```{r}
+styles_vec = c("A", "B", "C", "D", "E")
+
 
 # How to assign variables with a for loop
 for (i in c("A", "B", "C", "D", "E"))
