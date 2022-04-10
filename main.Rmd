@@ -206,6 +206,7 @@ bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Style_Grouping
 
 #TODO add legend for time period of styles
 
+
 bar1
 ```
 
