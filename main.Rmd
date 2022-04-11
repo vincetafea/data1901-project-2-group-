@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Required Packages
 ```{r}
-#install.packages("tidyverse")
+install.packages("tidyverse")
 install.packages("readxl")
 install.packages("fuzzyjoin")
 install.packages("scales")
@@ -214,13 +214,6 @@ scale_colour_discrete_qualitative(l1 = 70) +
 scatter1
 ```
 
-```{r}
-#TODO fix scales
-#TODO consider lat or long on which axis
-scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  geom_bin_2d()
-scatter1
-```
 
 
 
@@ -284,35 +277,15 @@ bar1
 
 ## Crosses
 ```{r}
-########################
-
-## ACTUAL IDEA
-# y-axis == subspace of total crosses completely ignore runestones of that specific carver
-# Filled by each style in a stacked bar chart sort of things
-
-########################
-
-# Main idea: proportion of each cross style (total c(A:G)) that each carver used
-# x-axis = carver, y-axis = proportion of cross styles as a % of runestones carved
-
-## Ideas
-# Seperate by carver -- find the styles of each carver
-  # Create 5 charts -- 1 for each carver
-  # Determine the style that each carver used -- draw interesting conclusion (qualitative)
-
-## Steps
-# Create new temp df for filtered by each carver
-# Bar chart is coloured by crosses
-
-###########################
-
 styles_vec = c("A", "B", "C", "D", "E")
 
-opir_df <- filter(merged, Signed == "Öpir 1 (S)")
-
+asmund_df <- filter(merged, Signed == "Åsmund (S)", !is.na(A1))
+balle_df <- filter(merged, Signed == "Balle (S)", !is.na(A1))
+fot_df <- filter(merged, Signed == "Fot 2 (S)", !is.na(A1))
+opir_df <- filter(merged, Signed == "Öpir 1 (S)", !is.na(A1))
+visate_df <- filter(merged, Signed == "Visäte (S)", !is.na(A1))
 
 total_crosses = 0
-
 total_crosses = sum(top_5_df$Total_A, 
                     top_5_df$Total_B, 
                     top_5_df$Total_C, 
@@ -321,22 +294,25 @@ total_crosses = sum(top_5_df$Total_A,
                     top_5_df$Total_F,
                     na.rm = T)
 
+top_carvers <- c(rep("Åsmund", 5), rep("Balle", 5), rep("Fot", 5), rep("Öpir", 5), rep("Visäte", 5))
 
-ggplot(opir_df, aes(x = ))
-#view(opir_df)
+totals_Asmund <- c(sum(asmund_df$Total_A), sum(asmund_df$Total_B), sum(asmund_df$Total_C), sum(asmund_df$Total_D), sum(asmund_df$Total_E))
+totals_Balle <- c(sum(balle_df$Total_A), sum(balle_df$Total_B), sum(balle_df$Total_C), sum(balle_df$Total_D), sum(balle_df$Total_E))
+totals_Fot <- c(sum(fot_df$Total_A), sum(fot_df$Total_B), sum(fot_df$Total_C), sum(fot_df$Total_D), sum(fot_df$Total_E))
+totals_Opir <- c(sum(opir_df$Total_A), sum(opir_df$Total_B), sum(opir_df$Total_C), sum(opir_df$Total_D), sum(opir_df$Total_E))
+totals_Visate <- c(sum(visate_df$Total_A), sum(visate_df$Total_B), sum(visate_df$Total_C), sum(visate_df$Total_D), sum(visate_df$Total_E))
 
+totals <- c(totals_Asmund, totals_Balle, totals_Fot, totals_Opir, totals_Visate)
 
+types <- rep(c("A", "B", "C", "D", "E"))
 
-###########################
-# Creates a column containing the total entries of A
-opir_df$A_TF <- opir_df$Total_A > 0
-#A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
+data <- data.frame(top_carvers, totals, types)
 
-#view(opir_df)
-#opir_plot <- ggplot(opir_df, aes(x = Signed)) +
-#  geom_bar()
-#opir_plot
+graph <- ggplot(data, aes(y=totals, x=top_carvers, fill=types)) +
+  geom_bar(position="stack", stat = "identity") + 
+  labs(x = "Top Carvers", y = "Number of Cross Types", fill = "Cross Types")
 
+graph
 ```
 
 
