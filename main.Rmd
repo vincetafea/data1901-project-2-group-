@@ -9,25 +9,49 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+#Required Packages
+```{r}
+install.packages("tidyverse")
+install.packages("readxl")
+install.packages("fuzzyjoin")
+install.packages("scales")
+install.packages("ggtext")
+install.packages("colorspace")
+install.packages("ggthemes")
+```
+
 # Main Processing
 ```{r}
 library(tidyverse)
-library(dplyr)
 library(readxl)
-library(readr)
-library(stringr)
 library(fuzzyjoin)
-library(ggplot2)
 library(scales)
+library(ggtext)
+library(colorspace)
+library(ggthemes)
 
 ###########################
 ### Code for setting up 'merged' df from the other sheets
+#TODO fix EN translations
+
+# Negates the first 2 spaces and then reads everything after
+###en <- read_csv("Arch_english_inscriptions.txt")
+###en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
+
+# Starts from the beginning of each line and reads all chars that aren't a space, then reads the space. Repeats 3 times, essentially matching the first 3 words
+###en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
 
 master_data <- read_excel("Arch_master_spreadsheet-2.xls")
 
 crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
 
 merged <- left_join(master_data, crosses_data)
+
+#TODO
+# Attempting to merg translations
+#translations <- en %>%
+#  select(name, english_translations)   
+#merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
 ###########################
 
 
@@ -57,6 +81,7 @@ merged$Total_A <- merged$A1 + merged$A2 + merged$A3 + merged$A4 + merged$A5 + me
 merged$Total_B <- merged$B1 + merged$B2 + merged$B3 + merged$B4
 merged$Total_C <- merged$C1 + merged$C2 + merged$C3 + merged$C4 + merged$C5 + merged$C6 + merged$C7 + merged$C8 + merged$C9 + merged$C10 + merged$C11
 
+### TODO GOTTA ADD D
 merged$Total_D <- merged$D1 + merged$D2 + merged$D3 + merged$D4 + merged$D5 + merged$D6
 
 merged$Total_E <- merged$E1 + merged$E2 + merged$E3 + merged$E4 + merged$E5 + merged$E6 + merged$E7 + merged$E8 + merged$E9 + merged$E10 + merged$E11
@@ -101,17 +126,17 @@ merged <- filter(merged,
 !(merged$Coordinates == ('')))
 
 # read the right of the coordinates: (\d+.)$
-merged$lat <- str_match(merged$Coordinates, regex("\\d+$"))
+merged$long <- str_match(merged$Coordinates, regex("\\d+$"))
 
 # read the left of the coordinates: ^[^.]*
-merged$long <- str_match(merged$Coordinates, regex("^\\d+"))
+merged$lat <- str_match(merged$Coordinates, regex("^\\d+"))
 
 # Filters out all NA and blank coord
 merged <- filter(merged, 
-!(merged$lat == ('')))
+!(merged$long == ('')))
 
-merged$lat <- as.numeric(merged$lat)
-merged$long <- as.numeric(merged$long)
+merged$lat <- as.numeric(merged$lat)/100000
+merged$long <- as.numeric(merged$long)/100000
 ###########################
 
 
@@ -156,8 +181,27 @@ view(top_5_df)
 #TODO consider lat or long on which axis
 scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
   geom_point() +
-  scale_x_continuous(name = "Longitude") +
-  scale_y_continuous(name = "Latitude")
+  #makes the x and y axis 1:1 as they are coordinates
+  coord_equal() +
+  #labelling
+  scale_x_continuous(name = "Longitude°E",
+                     n.breaks = 5,
+                     limits= c(15,17) ) +
+  scale_y_continuous(name = "Latitude°N",
+                     n.breaks = 5,
+                     limits=  c(65.5,67.5)) +
+  labs(
+       title = expression(bold("Figure 3")),
+       subtitle = expression(italic("Runestone locations according to WGS84 coordinates")),
+       fill = "Style Dating"
+       ) +
+scale_colour_discrete_qualitative(l1 = 70) +
+  
+  #adding the density thing on top (can remove if want)
+  geom_density_2d(alpha= 0.2,linetype = 1,
+                  size = 0.8,
+                  countour_var = "density") +
+  theme_igray()
 scatter1
 ```
 
@@ -165,7 +209,25 @@ scatter1
 #TODO fix scales
 #TODO consider lat or long on which axis
 scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  stat_density_2d()
+  coord_equal() +
+  stat_density_2d(size = 0.2,
+                  linetype = 1,
+                  contour_var = "density",
+                  
+                  ) +
+  scale_x_continuous(name = "Longitude°E",
+                     n.breaks = ,
+                     limits= c(15,17) ) +
+  scale_y_continuous(name = "Latitude°N",
+                     n.breaks = ,
+                     limits=  c(65.5,67.5)) +
+  labs(
+       title = expression(bold("Figure 4")),
+       subtitle = expression(italic("Visualization of Density")),
+       fill = "Style Dating"
+       ) +
+scale_colour_discrete_qualitative(l1 = 70) +
+  theme_igray()
 scatter1
 ```
 
@@ -181,16 +243,53 @@ scatter1
 
 ## Time period + frequency 
 Style grouping legened
-RAK	990-1010 AD   
+RAK	990-1010 AD
+
 FP	1010-1050 AD
 Pr1	1010-1040 AD
 Pr2	1020-1050 AD
+
 Pr3	1050 – 1070 AD
 Pr4	1060-1100 AD
 Pr5	1100-1130 AD
 ```{r}
-bar1 <- ggplot(top_5_df, aes(x = reorder(Signed, -s_freq), fill = Clean_styles)) + 
-                     geom_bar()
+#ordering the legend according to time period
+top_5_df$Clean_styles_ordered <- factor(top_5_df$Clean_styles,
+                                        levels = c(NA,"RAK",
+                                                   "Fp",
+                                                   "Pr1",
+                                                   "Pr2",
+                                                   "Pr3",
+                                                   "Pr3 - Pr4",
+                                                   "Pr4",
+                                                   "Pr4 - Pr5",
+                                                   "Pr5"),
+                                        exclude = NULL)
+
+bar1 <- (ggplot(top_5_df, 
+                aes(x = reorder(Signed, -s_freq), 
+                    fill = Clean_styles_ordered)
+                ) + 
+           geom_bar() +
+           
+  #labeling the plot
+           labs(
+       title = expression(bold("Figure 1")),
+       subtitle = expression(italic("Number of runestones signed by each carver filled with Gräslund's (2006) style dating.")),
+       x = "Runestone Carver",
+       y = "Runestones Signed",
+       fill = "Style Dating"
+       ) +
+     annotate("text", x=1, y=47, label= "45") +
+    annotate("text", x=2, y=24, label= "22") +
+    annotate("text", x=3, y=18, label= "16") +
+    annotate("text", x=4, y=10, label= "8") +
+    annotate("text", x=5, y=9, label= "7") +
+#colouring the fill to a nice and logical colour
+    scale_fill_discrete_divergingx(palette = "Earth", na.value = "black") +
+  theme_igray()
+
+  )
 
 #TODO add legend for time period of styles
 #TODO add a label for the total quanitity of each carver
@@ -231,63 +330,23 @@ opir_df <- filter(merged, Signed == "Öpir 1 (S)")
 
 total_crosses = 0
 
-total_crosses_num = sum(top_5_df$Total_A,
-                    top_5_df$Total_B,
-                    top_5_df$Total_C,
-                    top_5_df$Total_D,
+total_crosses = sum(top_5_df$Total_A, 
+                    top_5_df$Total_B, 
+                    top_5_df$Total_C, 
+                    top_5_df$Total_D, 
                     top_5_df$Total_E,
                     top_5_df$Total_F,
                     na.rm = T)
 
-opir_df$Total_crosses <- total_crosses_num
-# 
-# 
-# #plot <- ggplot(opir_df) + geom_col(aes(x = Signed, y = Total_crosses))
-# #plot
-# 
-# ggplot(opir_df, aes(x = Signed, y = Total_crosses / 45, colour, fill = Total_A)) + geom_bar(stat="identity")
-# 
-# #view(opir_df)
 
+ggplot(opir_df, aes(x = ))
+#view(opir_df)
 
-totals = c(sum(top_5_df$Total_A, na.rm = T), 
-           sum(top_5_df$Total_B, na.rm = T), 
-           sum(top_5_df$Total_C, na.rm = T), 
-           sum(top_5_df$Total_D, na.rm = T), 
-           sum(top_5_df$Total_E, na.rm = T)
-           )
-
-totals_lab = c(
-  "A",
-  "B",
-  "C",
-  "D",
-  "E"
-)
-
-
-#data1_df <- data.frame(opir_df$Signed, totals)
-#view(data1_df)
-
-
-#ggplot(opir_df, aes(x = "Opir", y = 3000)) + geom_bar(stat="identity", position = "stack")
-
-
-carvers <- c(rep("Öpir", 5))
- sum(top_5_df$Total_E)
-
-data <- data.frame(carvers, totals)
-
-graph <- ggplot(data, aes(fill=totals, y=totals, x=carvers)) + 
-  geom_bar(position="stack", stat="identity")
-
-
-graph
 
 
 ###########################
 # Creates a column containing the total entries of A
-#opir_df$A_TF <- opir_df$Total_A > 0
+opir_df$A_TF <- opir_df$Total_A > 0
 #A_trues <- sum(opir_df$A_TF == TRUE, na.rm = T)
 
 #view(opir_df)
