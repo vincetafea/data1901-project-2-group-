@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 #Required Packages
 ```{r}
-install.packages("tidyverse")
+#install.packages("tidyverse")
 install.packages("readxl")
 install.packages("fuzzyjoin")
 install.packages("scales")
@@ -31,27 +31,11 @@ library(colorspace)
 library(ggthemes)
 
 ###########################
-### Code for setting up 'merged' df from the other sheets
-#TODO fix EN translations
-
-# Negates the first 2 spaces and then reads everything after
-###en <- read_csv("Arch_english_inscriptions.txt")
-###en$english_translations <- str_match(en$`!/R Engelsk översättning`, regex("(?: [^ ]* [^ ]* )(.*)"))
-
-# Starts from the beginning of each line and reads all chars that aren't a space, then reads the space. Repeats 3 times, essentially matching the first 3 words
-###en$name <- str_match(en$`!/R Engelsk översättning`, regex("(?:^(\\S+\\s+){3})"))
-
 master_data <- read_excel("Arch_master_spreadsheet-2.xls")
 
 crosses_data <- read_excel("Arch_crosses_spreadsheet.xlsx")
 
 merged <- left_join(master_data, crosses_data)
-
-#TODO
-# Attempting to merg translations
-#translations <- en %>%
-#  select(name, english_translations)   
-#merged <- fuzzy_join(merged, en, by = c("Signum" = "name"), match_fun = str_detect)
 ###########################
 
 
@@ -168,7 +152,6 @@ unique_freq <- unique_freq[1:5]
 
 
 top_5_df <- merged[merged$Signed %in% unique_sig, ]
-view(top_5_df)
 ```
 
 
