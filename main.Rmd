@@ -214,13 +214,6 @@ scale_colour_discrete_qualitative(l1 = 70) +
 scatter1
 ```
 
-```{r}
-#TODO fix scales
-#TODO consider lat or long on which axis
-scatter1 <- ggplot(top_5_df, aes(x = long, y = lat, colour = Signed)) + 
-  geom_bin_2d()
-scatter1
-```
 
 
 
@@ -284,21 +277,6 @@ bar1
 
 ## Crosses
 ```{r}
-########################
-## ACTUAL IDEA
-# y-axis == subspace of total crosses completely ignore runestones of that specific carver
-# Filled by each style in a stacked bar chart sort of things
-########################
-# Main idea: proportion of each cross style (total c(A:G)) that each carver used
-# x-axis = carver, y-axis = proportion of cross styles as a % of runestones carved
-## Ideas
-# Seperate by carver -- find the styles of each carver
-  # Create 5 charts -- 1 for each carver
-  # Determine the style that each carver used -- draw interesting conclusion (qualitative)
-## Steps
-# Create new temp df for filtered by each carver
-# Bar chart is coloured by crosses
-###########################
 styles_vec = c("A", "B", "C", "D", "E")
 
 asmund_df <- filter(merged, Signed == "Åsmund (S)", !is.na(A1))
